@@ -10,7 +10,7 @@ exports.user_register = async(req, res, next) => {
         return;
     };
 
-    console.log('its working ya habibi');
+
 
     //checking if email already exist in the database
     const user = await User.findOne({email: req.body.email});
@@ -19,7 +19,7 @@ exports.user_register = async(req, res, next) => {
         return;
     };
 
-    console.log('its working ya habibi2');
+
 
     //generate salt and create hash password
     const saltHash = utils.genPassword(req.body.password);
@@ -45,5 +45,33 @@ exports.user_register = async(req, res, next) => {
 }
 
 exports.user_login = async(req, res, next) => {
-    console.log('berhasil user login');
+    try{
+        //validating the data
+        const {error} = validation.userLoginValidation(req.body);
+        if(error){
+            res.status(401).send(error.details[0].message)
+            return;
+        };
+
+        //checking if email already exist in the database
+        const user = await User.findOne({email: req.body.email});
+        if(!user){
+            res.status(401).send('the email did not exist');
+            return;
+        };
+
+        //validate the password
+        const validPassword = await utils.verifyPassword(req.body.password, user.hash, user.salt);
+        if(validPassword){
+            const tokenObject = utils.issueJWT(user);
+            res.setHeader('Set-Cookie', [`token=${tokenObject.token}; path=/; expires=Thu, 01 Jan 2022 00:00:00 GMT;Secure; HttpOnly`]);
+            res.status(200).redirect('/');
+            return;
+        }else{
+            res.status(401).send('password is not correct');
+            return;
+        }
+    }catch(err){
+        res.status(400).send(err);
+    }
 }
