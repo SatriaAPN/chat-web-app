@@ -45,23 +45,27 @@
       <form action="/user/register" method="POST" enctype="application/x-www-form-urlencoded">
         <img class="mb-4" src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
         <h1 class="h3 mb-3 fw-normal">sign up to chat-app</h1>
+        <%
+          if(typeof message !== "undefined") { %>
+            <h6 style="color: rgba(240, 9, 9, 0.685);"><%= message %></h6>
+        <% } %>
         <div class="form-floating">
-          <input type="string" class="form-control" id="username" name="username" placeholder="Username" autocomplete="off">
+          <input type="text" class="form-control" id="username" name="username" placeholder="Username" autocomplete="off" required minlength="6">
           <label for="email">Username</label>
         </div>
         <div class="form-floating">
-          <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" autocomplete="off">
+          <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" autocomplete="off" required>
           <label for="email">Email address</label>
         </div>
         <div class="form-floating">
-          <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password" required minlength="6">
           <label for="password">Password</label>
         </div>
 
         <div class="checkbox mb-3" style="margin-top: 15px;">
           <h6 ><a href="/user/register" style="text-decoration: none; color: black;">Read term and condition</a></h6>
           <label>
-            <input type="checkbox" value="remember-me"> I agree to term and condition
+            <input type="checkbox" value="remember-me" required> I agree to term and condition
           </label>
         </div>
         <button class="w-100 btn btn-lg btn-primary" type="submit" style="margin-bottom: 15px; background-color: rgb(73, 185, 45); border: 0cm;">Sign up</button>

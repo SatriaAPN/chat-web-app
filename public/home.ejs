@@ -1,11 +1,9 @@
 <html>
 <head>
-
+    <link rel="stylesheet" href="/css/home.css" type="text/css">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="./css/home.css">
+    
 
 </head>
 <body>
@@ -38,11 +36,12 @@
                     <div class="chat_ib">
                       <% let link = '/'+as.senderId %>
                       <h5 style="color: black;"><a href= <%= link %> ><%= as.senderUsername %></a><span class="chat_date">Dec 25</span></h5>
-                      <p>.</p>
+                      <p><%= as.text %></p>
                     </div>
                 </div>
               </div>
             <% } %>
+            <h6 style="text-align: center;"><a href="/chat/newchat">send another message</a></h6>
           </div>
         </div>
         <div class="mesgs">
@@ -85,4 +84,6 @@
     </div>
   </div>
 </body>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </html>

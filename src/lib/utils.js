@@ -3,6 +3,10 @@ const jsonwebtoken = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 
+const Chat = require('../models/Chat');
+const User = require('../models/User');
+
+
 const pathToPrivKey = path.join(__dirname, '../crypto/', 'id_rsa_priv.pem');
 const PRIV_KEY = fs.readFileSync(pathToPrivKey, 'utf8');
 const pathToPubKey = path.join(__dirname, '../crypto/', 'id_rsa_pub.pem');
@@ -45,7 +49,6 @@ function genPassword(password) {
       hash: genHash
     };
 }
-
 
 /**
  * @param {*} user - The user object.  We need this to set the JWT `sub` payload property to the MongoDB user ID
@@ -136,8 +139,79 @@ function chatSorting(chatReceived, chatSended){
   return arr;
 }
 
+const sideChatSorting = async(req)=>{
+  // //checking the chat in the database
+  let findChatReceived = await Chat.findOne({receiverId: req.jwt.sub}, {}, { sort: { 'date' : -1 }});
+  console.log(findChatReceived);
+
+  let chatReceived = await Chat.find({receiverId: req.jwt.sub}).select('senderId -_id');
+  let chatSended = await Chat.find({senderId: req.jwt.sub}).select('receiverId -_id');
+
+  let receivedArr = [];
+  let receivedArr2 = [];
+
+  let found=[];
+  let found2=[];
+
+  for(let as of chatReceived){
+      receivedArr.push(as.senderId);
+  }
+  for(let as of chatSended){
+      receivedArr2.push(as.receiverId);
+  }
+
+  receivedArr = Array.from(new Set(receivedArr));
+  receivedArr2 = Array.from(new Set(receivedArr2));
+  console.log(receivedArr2)
+
+  for(let as of receivedArr){
+      let founded = await Chat.findOne({receiverId: req.jwt.sub, senderId: as}, {}, { sort: { 'date' : -1 }});
+      found.push(founded);
+  }
+  for(let as of receivedArr2){
+      let founded = await Chat.findOne({receiverId: as, senderId: req.jwt.sub}, {}, { sort: { 'date' : -1 }});
+      found2.push(founded);
+  }
+
+  console.log(found2);
+
+  found = found.sort((a,b)=>a.date.getTime()-b.date.getTime());
+
+  found2 = found2.sort((a,b)=>a.date.getTime()-b.date.getTime());
+  let fon=[];
+  let fon2=[];
+  for(let as of found){
+      fon.push({id: as.senderId, text: as.text, date: as.date})
+  }
+  for(let as of found2){
+      fon2.push({id: as.receiverId, text: as.text, date: as.date})
+  }
+
+
+  let final = fon.concat(fon2);
+  console.log(final)
+
+  final = final.sort((a,b)=>a.date.getTime()-b.date.getTime());
+  console.log(final);
+  let final2 = [];
+
+  for(let i=final.length-1; i>=0; i--){
+      if(final2.map(as=>as.id).indexOf(final[i].id)<0){
+          final2.push(final[i]);
+      }
+  }
+
+  for(let i=0; i<final2.length; i++){
+      let foundUser = await User.findOne({_id: final2[i].id});
+      final2[i] = {'senderId': final2[i].id, 'text':final2[i].text, 'senderUsername': foundUser.username};
+  }
+
+  return final2;
+}
+
 module.exports.verifyPassword = verifyPassword;
 module.exports.genPassword = genPassword;
 module.exports.issueJWT = issueJWT;
 module.exports.authVerif = authVerif;
 module.exports.chatSorting = chatSorting;
+module.exports.sideChatSorting = sideChatSorting;
