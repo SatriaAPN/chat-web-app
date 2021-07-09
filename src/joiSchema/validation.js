@@ -5,6 +5,10 @@ exports.userRegisterValidation = (data) => {
         username: joi.string()
             .min(6)
             .required(),
+        birthday: joi.string()
+            .required(),
+        gender: joi.string()
+            .required(),
         email: joi.string()
             .min(6)
             .required()

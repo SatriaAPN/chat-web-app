@@ -22,4 +22,9 @@ router.get('/logout', (req, res, next)=>{
     res.status(200).redirect('/user/login');
 })
 
+//setting
+router.get('/setting', utils.authVerif, controllers.user.get_user_setting)
+
+router.post('/setting', utils.authVerif, controllers.user.post_user_setting)
+
 module.exports = router;

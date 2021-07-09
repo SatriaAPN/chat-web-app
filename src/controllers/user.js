@@ -25,6 +25,8 @@ exports.user_register = async(req, res, next) => {
 
     const newUser = new User({
         username: req.body.username,
+        birthday: req.body.birthday,
+        gender: req.body.gender,
         email: req.body.email,
         hash: hash,
         salt: salt
@@ -73,5 +75,36 @@ exports.user_login = async(req, res, next) => {
         }
     }catch(err){
         res.status(500).render('loginPage',{'message': 'an error has occured in the system, please try again later'});
+    }
+}
+
+exports.get_user_setting = async(req, res, next) => {
+    if(!req.jwt){res.redirect('/user/login')}
+    const user = await User.findOne({_id: req.jwt.sub})
+
+    res.status(200).render('userSettingPage', {user: user});
+}
+
+exports.post_user_setting = async(req, res, enxt) => {
+    if(!req.jwt){res.redirect('/user/login')}
+
+    //checking the user in the database
+    const user = await User.findOne({_id: req.jwt.sub});
+    if(!user){res.status(402).render('userSettingPage', {'user': user, 'message': 'user did not found'})}
+
+    //validate the password
+    const validPassword = await utils.verifyPassword(req.body.password, user.hash, user.salt);
+    if(validPassword){
+        //update the user
+        const userUpdated = await User.findOneAndUpdate({_id: req.jwt.sub}, {$set: {username: req.body.username}})
+
+        //issued a authorization token 
+        const tokenObject = utils.issueJWT(user);
+        res.setHeader('Set-Cookie', [`token=${tokenObject.token}; path=/; expires=Thu, 01 Jan 2022 00:00:00 GMT;Secure; HttpOnly`]);
+        res.status(200).redirect('/user/setting');
+        return;
+    }else{
+        res.status(403).render('userSettingPage', {'user': user, 'message': 'password invalid, changes did not saved'});
+        return;
     }
 }

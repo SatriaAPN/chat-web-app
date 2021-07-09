@@ -141,8 +141,6 @@ function chatSorting(chatReceived, chatSended){
 
 const sideChatSorting = async(req)=>{
   // //checking the chat in the database
-  let findChatReceived = await Chat.findOne({receiverId: req.jwt.sub}, {}, { sort: { 'date' : -1 }});
-  console.log(findChatReceived);
 
   let chatReceived = await Chat.find({receiverId: req.jwt.sub}).select('senderId -_id');
   let chatSended = await Chat.find({senderId: req.jwt.sub}).select('receiverId -_id');
@@ -162,7 +160,6 @@ const sideChatSorting = async(req)=>{
 
   receivedArr = Array.from(new Set(receivedArr));
   receivedArr2 = Array.from(new Set(receivedArr2));
-  console.log(receivedArr2)
 
   for(let as of receivedArr){
       let founded = await Chat.findOne({receiverId: req.jwt.sub, senderId: as}, {}, { sort: { 'date' : -1 }});
@@ -173,26 +170,22 @@ const sideChatSorting = async(req)=>{
       found2.push(founded);
   }
 
-  console.log(found2);
-
   found = found.sort((a,b)=>a.date.getTime()-b.date.getTime());
 
   found2 = found2.sort((a,b)=>a.date.getTime()-b.date.getTime());
   let fon=[];
   let fon2=[];
   for(let as of found){
-      fon.push({id: as.senderId, text: as.text, date: as.date})
+      fon.push({id: as.senderId, text: as.text, date: as.date, read: as.read})
   }
   for(let as of found2){
       fon2.push({id: as.receiverId, text: as.text, date: as.date})
   }
 
-
   let final = fon.concat(fon2);
-  console.log(final)
 
   final = final.sort((a,b)=>a.date.getTime()-b.date.getTime());
-  console.log(final);
+
   let final2 = [];
 
   for(let i=final.length-1; i>=0; i--){
@@ -203,7 +196,7 @@ const sideChatSorting = async(req)=>{
 
   for(let i=0; i<final2.length; i++){
       let foundUser = await User.findOne({_id: final2[i].id});
-      final2[i] = {'senderId': final2[i].id, 'text':final2[i].text, 'senderUsername': foundUser.username};
+      final2[i] = {'senderId': final2[i].id, 'text':final2[i].text, 'senderUsername': foundUser.username, 'date': final2[i].date, 'read': final2[i].read};
   }
 
   return final2;

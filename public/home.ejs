@@ -3,13 +3,16 @@
     <link rel="stylesheet" href="/css/home.css" type="text/css">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
-    
+    <title>Chat-App</title>
 
 </head>
 <body>
   <div class="container">
     <h3 class=" text-center">Messaging</h3>
-    <h6 style="text-align: right;"><a href="/user/logout" style="text-decoration: none; color: black;">logout</a></h6>
+    <h6 style="text-align: right;">
+      <a href="/user/setting" style="text-decoration: none; color: black; margin-right: 15px;">settings</a>
+      <a href="/user/logout" style="text-decoration: none; color: black;">logout</a>
+    </h6>
     <div class="messaging">
       <div class="inbox_msg">
         <div class="inbox_people">
@@ -35,7 +38,13 @@
                     </div>
                     <div class="chat_ib">
                       <% let link = '/'+as.senderId %>
-                      <h5 style="color: black;"><a href= <%= link %> ><%= as.senderUsername %></a><span class="chat_date">Dec 25</span></h5>
+                      <h5 style="color: black;">
+                        <a href= <%= link %> ><%= as.senderUsername %></a>
+                        <span class="chat_date"> <% if(typeof as.read != "undefined"){
+                          if(as.read==false){ %>  
+                            <p style="display: inline-block; color: #008812;">new message</p>  <%
+                          }
+                        } %> <%= as.date.toString().split(' ').slice(1, 3).join(' ') %></span></h5>
                       <p><%= as.text %></p>
                     </div>
                 </div>
@@ -53,16 +62,17 @@
                       <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> 
                     </div>
                     <div class="received_msg">
-                        <div class="received_withd_msg">
+                      <div class="received_withd_msg">
                         <p><%= as.text %></p>
-                        <span class="time_date"> 11:01 AM    |    June 9</span></div>
+                        <span class="time_date"><%= as.date.toString().split(' ').slice(4, 5).join(' ').split(':').slice(0, 2).join(':') %> | <%= as.date.toString().split(' ').slice(1, 3).join(' ') %></span>
+                      </div>
                     </div>
                   </div>
                 <% }else { %>
                   <div class="outgoing_msg">
                     <div class="sent_msg">
                       <p><%= as.text %></p>
-                      <span class="time_date"> 11:01 AM    |    June 9</span> 
+                      <span class="time_date"><%= as.date.toString().split(' ').slice(4, 5).join(' ').split(':').slice(0, 2).join(':') %> | <%= as.date.toString().split(' ').slice(1, 3).join(' ') %> | <%= as.read==true?'readed':'sent' %></span>
                     </div>
                   </div>
             <% } 
